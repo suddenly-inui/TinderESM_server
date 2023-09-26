@@ -28,12 +28,16 @@ def read_root(user_id: str, esm_id: int, label: str):
 
 @app.get("/send_user")
 def send_user(user_id: str, user_name: str):
-    # DBに登録
-    db.execute_sql(engine, f"insert into user(user_id, user_name) values('{user_id}', '{user_name}')")
+    success = True
+    try:
+        db.execute_sql(engine, f"insert into user(user_id, user_name) values('{user_id}', '{user_name}')")
+    except:
+        success = False
+
     return {
         "user_id": user_id,
         "user_name": user_name,
-        "success": True
+        "success": success
     }
 
 
