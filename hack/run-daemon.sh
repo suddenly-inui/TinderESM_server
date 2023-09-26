@@ -1,0 +1,1 @@
+sudo gunicorn -c gunicorn_prod.py main:app
