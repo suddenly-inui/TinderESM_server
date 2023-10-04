@@ -76,3 +76,134 @@ def esm():
     esm_list = [{'esm_id': item[0], 'title': item[1], 'content': item[2]} for item in esm]
     
     return esm_list
+
+
+# 以下、awareSNS
+
+@app.get("/aware/posts")
+def posts():
+    engine = db.connect_database("awareSNS")
+    posts = db.execute_sql(engine, "SELECT posts.*, users.user_name, COUNT(replies.reply_id) AS reply_count FROM posts LEFT JOIN replies ON posts.post_id = replies.post_id LEFT JOIN users ON posts.user_id = users.user_id GROUP BY posts.post_id ORDER BY posts.timestamp DESC LIMIT 100;").fetchall()
+    posts = [{'post_id': item[0], 'user_id': item[1], 'user_name': item[5], 'content': item[2], "emotion": item[3], "timestamp": item[4], "reply_count": item[6]} for item in posts]
+
+    return posts
+
+
+@app.get("/aware/send_post")
+def send_post(user_id: str, content: str, emotion: str):
+    engine = db.connect_database("awareSNS")
+    success = True
+    try:
+        current_datetime = datetime.datetime.now(timezone)
+        timestamp_milliseconds = int(current_datetime.timestamp() * 1000)
+        post_id = f"{user_id}{timestamp_milliseconds}"
+        db.execute_sql(engine, f"insert into posts(post_id, user_id, content, emotion, timestamp) values('{post_id}', '{user_id}', '{content}', '{emotion}', '{current_datetime.strftime('%Y-%m-%d %H:%M:%S')}')")
+    except Exception as e:
+        success = False
+        print(e)
+
+    return{
+        "success": success
+    }
+
+
+@app.get("/aware/get_emotion")
+def get_emotion(user_id):
+    return {
+        "emotion": "0.5"
+    }
+
+
+@app.get("/aware/user")
+def posts(user_id: str):
+    engine = db.connect_database("awareSNS")
+    user = db.execute_sql(engine, f"SELECT * FROM users where user_id = '{user_id}'").fetchone()
+    if user is not None:
+        id = user[0]
+        name = user[1]
+    else:
+        id = ""
+        name = ""
+
+
+    return {
+        "user_id": id,
+        "user_name": name
+    }
+
+
+@app.get("/aware/send_reply")
+def send_reply(post_id: str, user_id: str, content: str):
+    engine = db.connect_database("awareSNS")
+    success = True
+    try:
+        current_datetime = datetime.datetime.now(timezone)
+        timestamp_milliseconds = int(current_datetime.timestamp() * 1000)
+        reply_id = f"reply{user_id}{timestamp_milliseconds}"
+        db.execute_sql(engine, f"insert into replies(reply_id, post_id, user_id, content, timestamp) values('{reply_id}', '{post_id}', '{user_id}', '{content}', '{current_datetime.strftime('%Y-%m-%d %H:%M:%S')}')")
+    except Exception as e:
+        success = False
+        print(e)
+
+    return{
+        "success": success
+    }
+
+
+@app.get("/aware/replies")
+def replies(post_id: str):
+    engine = db.connect_database("awareSNS")
+    replies = db.execute_sql(engine, f"SELECT * FROM replies LEFT JOIN users ON replies.user_id = users.user_id WHERE post_id = '{post_id}'  ORDER BY timestamp DESC LIMIT 100;").fetchall()
+    replies = [{'reply_id': item[0], 'post_id': item[1], 'user_id': item[2], 'user_name': item[6], 'content': item[3], "timestamp": item[4]} for item in replies]
+
+    return replies
+
+
+@app.get("/aware/sign_in")
+def sign_in(user_id: str, user_name: str, password: str):
+    engine = db.connect_database("awareSNS")
+    success = True
+    try:
+        db.execute_sql(engine, f"insert into users(user_id, user_name, password) values('{user_id}', '{user_name}', '{password}')")
+    except Exception as e:
+        success = False
+        print(e)
+
+    return{
+        "success": success
+    }
+
+
+@app.get("/aware/log_in")
+def log_in(user_id: str, password: str):
+    engine = db.connect_database("awareSNS")
+    success = True
+    try:
+        user = db.execute_sql(engine, f"SELECT * FROM users where user_id = '{user_id}'").fetchone()
+        if user is not None:
+            success = (user[2] == password)
+        else:
+            success = False
+    except Exception as e:
+        success = False
+
+    return{
+        "success": success
+    }
+
+
+@app.get("/aware/is_user_registered")
+def is_user_registered(user_id: str):
+    engine = db.connect_database("awareSNS")
+    success = True
+    try:
+        user = db.execute_sql(engine, f"select * from users where user_id = '{user_id}';").fetchall()
+        if not user:
+            success = False
+    except Exception as e:
+        success = False
+        print(e)
+
+    return{
+        "success": success
+    }
