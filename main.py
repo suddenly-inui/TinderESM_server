@@ -2,6 +2,7 @@ from fastapi import FastAPI
 import logging
 import datetime
 import pytz
+import random
 
 import db
 
@@ -109,8 +110,9 @@ def send_post(user_id: str, content: str, emotion: str):
 
 @app.get("/aware/get_emotion")
 def get_emotion(user_id):
+    random_emotion = random.choice([-1, 0, 1])
     return {
-        "emotion": "0.5"
+        "emotion": f"{random_emotion}"
     }
 
 

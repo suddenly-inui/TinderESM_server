@@ -67,11 +67,11 @@ def create_mock(engine):
     create_table_posts(engine)
     data = lambda post_id, user_id, content, emotion, timestamp: {"post_id": post_id, "user_id": user_id, "content": content, "emotion": emotion, "timestamp": timestamp}
     datas = [
-        data("'111111111111111111'", "'aware'", "'sample posts. \nsample new lines\nsample new lines'", "'0.5'", "'2023-09-21 14:00:00'"),
-        data("'222222222222222222'", "'aware'", "'sample posts. \nsample new lines\nsample new lines'", "'0.4'", "'2023-09-21 16:00:00'"),
-		data("'33333333333333333'", "'aware'", "'sample posts. \nsample new lines\nsample new lines'", "'0.7'", "'2023-09-21 18:00:00'"),
-		data("'444444444444444444'", "'aware'", "'sample posts. \nsample new lines\nsample new lines'", "'0.2'", "'2023-09-21 20:00:00'"),
-		data("'555555555555555555'", "'aware'", "'sample posts. \nsample new lines\nsample new lines'", "'0.9'", "'2023-09-21 22:00:00'"),
+        data("'111111111111111111'", "'aware'", "'sample posts. \nsample new lines\nsample new lines'", "'1'", "'2023-09-21 14:00:00'"),
+        data("'222222222222222222'", "'aware'", "'sample posts. \nsample new lines\nsample new lines'", "'0'", "'2023-09-21 16:00:00'"),
+		data("'33333333333333333'", "'aware'", "'sample posts. \nsample new lines\nsample new lines'", "'-1'", "'2023-09-21 18:00:00'"),
+		data("'444444444444444444'", "'aware'", "'sample posts. \nsample new lines\nsample new lines'", "'0'", "'2023-09-21 20:00:00'"),
+		data("'555555555555555555'", "'aware'", "'sample posts. \nsample new lines\nsample new lines'", "'-1'", "'2023-09-21 22:00:00'"),
     ]
     for data in datas:
         insert_data(engine, "posts", data)
